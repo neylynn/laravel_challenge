@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\EmployeeManagement\Applicant;
+use App\Services\EmployeeManagement\JobApplicationService;
 use Illuminate\Http\Request;
 
 class JobController extends Controller

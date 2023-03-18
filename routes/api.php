@@ -22,7 +22,8 @@ Route::post('login', [LoginController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     
-    Route::get('posts', [PostController::class, 'list']);
+    // Route::get('posts', [PostController::class, 'list']);
+    Route::resource('posts', PostController::class);
     Route::post('posts/reaction', [PostController::class, 'toggleReaction']);
     
     Route::post('mpt/invoice-amount', [InternetServiceProviderController::class, 'getMptInvoiceAmount']);

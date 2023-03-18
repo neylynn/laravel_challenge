@@ -9,8 +9,14 @@ class Staff implements Employee
         // TODO: Implement applyJob() method.
     }
     
-    public function salary(): int
+    public function salary()
     {
-        return 200;
+        // return 200;
+        $calculator = new SalaryCalculator();
+        $salary = $calculator->calculateSalary(40, 25);
+        
+        return response()->json([
+            'data' => $salary
+        ]);
     }
 }

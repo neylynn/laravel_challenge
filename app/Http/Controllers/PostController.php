@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostReactionRequest;
 use App\Models\Like;
 use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
-    public function list()
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
     {
-        $posts = Post::get();
+        $posts = Post::orderBy('id', 'DESC')->get();
         
         $data = collect();
         foreach ($posts as $post) {
@@ -28,14 +33,10 @@ class PostController extends Controller
             'data' => $data,
         ]);
     }
-    
-    public function toggleReaction(Request $request)
+
+    public function toggleReaction(PostReactionRequest $request)
     {
-        Log::debug("USER ID". auth()->id());
-        $request->validate([
-            'post_id' => 'required|int|exists:posts,id',
-            'like'   => 'required|boolean'
-        ]);
+        // Log::debug("USER ID". auth()->id());
         
         $post = Post::find($request->post_id);
         if(!$post) {
@@ -45,7 +46,7 @@ class PostController extends Controller
             ]);
         }
         
-        if($post->user_id == auth()->id()) {
+        if($post->author_id == auth()->id()) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You cannot like your post'
@@ -53,28 +54,33 @@ class PostController extends Controller
         }
         
         $like = Like::where('post_id', $request->post_id)->where('user_id', auth()->id())->first();
-        if($like && $like->post_id == $request->post_id && $request->like) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You already liked this post'
+        // Log::debug("LIKE => $like");
+        
+        if(!empty($like)){
+            if($like && $like->post_id == $request->post_id && $request->like) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You already liked this post'
+                ]);
+            }elseif($like && $like->post_id == $request->post_id && !$request->like) {
+                $like->delete();
+                
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'You unlike this post successfully'
+                ]);
+            }
+        }else{
+            Like::create([
+                'post_id' => $request->post_id,
+                'user_id' => auth()->id()
             ]);
-        }elseif($like && $like->post_id == $request->post_id && !$request->like) {
-            $like->delete();
             
             return response()->json([
                 'status' => 200,
-                'message' => 'You unlike this post successfully'
+                'message' => 'You like this post successfully'
             ]);
         }
-        
-        Like::create([
-            'post_id' => $request->post_id,
-            'user_id' => auth()->id()
-        ]);
-        
-        return response()->json([
-            'status' => 200,
-            'message' => 'You like this post successfully'
-        ]);
     }
+
 }
