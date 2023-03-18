@@ -41,7 +41,7 @@ class LoginController extends Controller
         if (!$user) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Model not found.'
+                'message' => 'User not found.'
             ]);
         }
     

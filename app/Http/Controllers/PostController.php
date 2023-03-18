@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -30,6 +31,7 @@ class PostController extends Controller
     
     public function toggleReaction(Request $request)
     {
+        Log::debug("USER ID". auth()->id());
         $request->validate([
             'post_id' => 'required|int|exists:posts,id',
             'like'   => 'required|boolean'
@@ -39,7 +41,7 @@ class PostController extends Controller
         if(!$post) {
             return response()->json([
                 'status' => 404,
-                'message' => 'model not found'
+                'message' => 'Post not found'
             ]);
         }
         
